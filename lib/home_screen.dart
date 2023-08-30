@@ -2,35 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_practice/main.dart';
 
-import 'user.dart';
-
-class HomeScreen extends ConsumerWidget {
-  const HomeScreen({super.key});
-
-  void onSubmit(WidgetRef ref, String value) {
-    ref.read(userProvider.notifier).updateName(value);
-  }
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(userProvider);
+  ConsumerState<ConsumerStatefulWidget> createState() => _HomePageState();
+}
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(user.name),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          TextField(
-            onSubmitted: (value) => onSubmit(ref, value),
+class _HomePageState extends ConsumerState<HomePage> {
+  String userNo = "1";
+
+  @override
+  Widget build(BuildContext context) {
+    return ref.watch(fetchUserProvider(userNo)).when(
+      data: (data) {
+        return Scaffold(
+          appBar: AppBar(),
+          body: Column(
+            children: [
+              TextField(
+                onSubmitted: (value) {
+                  setState(() {
+                    userNo = value;
+                  });
+                },
+              ),
+              Center(
+                child:
+                    Text('My name is ${data.name} my email is ${data.email}'),
+              )
+            ],
           ),
-          Center(
-            child: Text(user.age.toString()),
-          )
-        ],
-      ),
+        );
+      },
+      error: (error, stackTrace) {
+        return const Center(
+          child: Text('Error'),
+        );
+      },
+      loading: () {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 }
+
+// class HomeScreen extends ConsumerWidget {
+//   const HomeScreen({super.key});
+
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return ref.watch(fetchUserProvider).when(
+//       data: (data) {
+//         return Scaffold(
+//           appBar: AppBar(),
+//           body: Column(
+//             children: [
+//               Center(
+//                 child:
+//                     Text('My name is ${data.name} my email is ${data.email}'),
+//               )
+//             ],
+//           ),
+//         );
+//       },
+//       error: (error, stackTrace) {
+//         return const Center(
+//           child: Text('Error'),
+//         );
+//       },
+//       loading: () {
+//         return const Center(
+//           child: CircularProgressIndicator(),
+//         );
+//       },
+//     );
+//   }
+// }

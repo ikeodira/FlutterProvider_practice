@@ -1,39 +1,43 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
+
+// import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 @immutable
 class User {
   final String name;
-  final int age;
+  final String email;
 
   const User({
     required this.name,
-    required this.age,
+    required this.email,
   });
 
   User copyWith({
     String? name,
-    int? age,
+    String? email,
   }) {
     return User(
       name: name ?? this.name,
-      age: age ?? this.age,
+      email: email ?? this.email,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'name': name,
-      'age': age,
+      'email': email,
     };
   }
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       name: map['name'] as String,
-      age: map['age'] as int,
+      email: map['email'] as String,
     );
   }
 
@@ -43,23 +47,24 @@ class User {
       User.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() => 'User(name: $name, age: $age)';
+  String toString() => 'User(name: $name, email: $email)';
 
   @override
   bool operator ==(covariant User other) {
     if (identical(this, other)) return true;
 
-    return other.name == name && other.age == age;
+    return other.name == name && other.email == email;
   }
 
   @override
-  int get hashCode => name.hashCode ^ age.hashCode;
+  int get hashCode => name.hashCode ^ email.hashCode;
 }
 
-class UserNotifer extends StateNotifier<User> {
-  UserNotifer(super.state);
+final userRepositoryProvider = Provider((ref) => UserRepository());
 
-  void updateName(String n) {
-    state = state.copyWith(name: n);
+class UserRepository {
+  Future<User> fetchUserData(String input) {
+    var url = 'https://jsonplaceholder.typicode.com/users/$input';
+    return http.get(Uri.parse(url)).then((value) => User.fromJson(value.body));
   }
 }

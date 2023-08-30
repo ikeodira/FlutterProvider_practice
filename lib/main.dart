@@ -10,11 +10,18 @@ import 'package:riverpod_practice/user.dart';
 // final nameProvider = Provider((ref) => "Ike");
 // final nameProvider = StateProvider<String?>((ref) => null);
 
-final userProvider = StateNotifierProvider<UserNotifer, User>(
-  (ref) => UserNotifer(
-    User(name: "", age: 0),
-  ),
-);
+final fetchUserProvider = FutureProvider.family((ref, String input) {
+  final userRepository = ref.watch(userRepositoryProvider);
+  return userRepository.fetchUserData(input);
+});
+
+final streamProvider = StreamProvider<int>((ref) async* {
+  yield 1;
+});
+
+// final streamProvider = StreamProvider<List<int>>((ref) async* {
+//   yield [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+// });
 
 void main() {
   runApp(
@@ -29,13 +36,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'Flutter Riverpod App',
-      // theme: ThemeData(
-      //   colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      //   useMaterial3: true,
-      // ),
-      home: HomeScreen(),
+      theme: ThemeData(
+        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
+      ),
+      home: const HomePage(),
     );
   }
 }
